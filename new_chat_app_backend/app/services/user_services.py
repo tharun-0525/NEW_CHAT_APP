@@ -23,7 +23,7 @@ async def getUsers(db: AsyncSession,limit: int,after_id: int):
 async def login_user(username: str, password: str, db: AsyncSession):
     user = await getUserByUsername(db, username)
     if not user or not verify_password(password, user.hashed_password):
-        return {"error": "Invalid username or password"}
+        return None
 
     token = create_access_token({"user_id":user.id}) 
     return token
