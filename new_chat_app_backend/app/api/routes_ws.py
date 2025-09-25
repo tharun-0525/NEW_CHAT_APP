@@ -8,6 +8,7 @@ from app.db.session import get_db
 from app.core.security import verify_token  # your JWT check
 from app.core.connection_manager import manager        # your ConnectionManager
 from app.schema.message import MessageOut
+import asyncio
 
 router = APIRouter()
 
@@ -25,7 +26,13 @@ async def websocket_endpoint(
     try:
         while True:
             # Receive JSON message
-            data = await websocket.receive_text()
+            # Timeout if no message in 40s
+            try:
+                data = await asyncio.wait_for(websocket.receive_text(), timeout=120)
+            except asyncio.TimeoutError:
+                print(f"⏳ User {sender_id['user_id']} timed out")
+                await websocket.close()
+                break
             message_data = json.loads(data)
             sender_id = message_data["sender_id"]
             receiver_id = message_data["receiver_id"]
