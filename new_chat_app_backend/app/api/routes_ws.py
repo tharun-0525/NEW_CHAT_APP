@@ -27,12 +27,8 @@ async def websocket_endpoint(
         while True:
             # Receive JSON message
             # Timeout if no message in 40s
-            try:
-                data = await asyncio.wait_for(websocket.receive_text(), timeout=120)
-            except asyncio.TimeoutError:
-                print(f"⏳ User {sender_id['user_id']} timed out")
-                await websocket.close()
-                break
+            data = await websocket.receive_text()
+
             message_data = json.loads(data)
             sender_id = message_data["sender_id"]
             receiver_id = message_data["receiver_id"]
@@ -52,11 +48,15 @@ async def websocket_endpoint(
                 timestamp=msg.timestamp.isoformat() if msg.timestamp else None
             ).dict()
 
+            print(manager.connected_list())
+
             if manager.is_connected(msg.sender_id):
+                print("sent to user itself")
                 await manager.send_personal_message(payload, msg.sender_id)
             
-            if manager.is_connected(receiver_id):
-                await manager.send_personal_message(payload, receiver_id)
+            if manager.is_connected(msg.receiver_id):
+                print("sent to intended")
+                await manager.send_personal_message(payload, msg.receiver_id)
 
     except WebSocketDisconnect:
         manager.disconnect(user_id,websocket)
