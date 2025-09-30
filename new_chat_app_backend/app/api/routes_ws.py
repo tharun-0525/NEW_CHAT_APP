@@ -19,14 +19,13 @@ async def websocket_endpoint(
     token: str,
     db: AsyncSession = Depends(get_db)
 ):
-    # 3. Add to connection manager
+
     sender_id = verify_token(token)
     await manager.connect(sender_id["user_id"], websocket)
 
     try:
         while True:
-            # Receive JSON message
-            # Timeout if no message in 40s
+
             data = await websocket.receive_text()
 
             message_data = json.loads(data)
