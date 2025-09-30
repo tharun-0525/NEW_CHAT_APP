@@ -11,12 +11,12 @@ async def send_message( content:str, sender_id: int, receiver_id: int, db: Async
     await db.refresh(new_message)
     return new_message
 
-async def fetch_messages(user_id: int, with_user: int, limit: int,db: AsyncSession):
+async def fetch_messages(user_id: int, with_user: int, limit: int,after_id: int,db: AsyncSession):
     result = await db.execute(
         select(Message).where(
             or_(and_((Message.sender_id == user_id),(Message.receiver_id == with_user)), 
                 and_((Message.sender_id == with_user),(Message.receiver_id == user_id))
             )
-        ).order_by(Message.id).limit(limit)
+        ).order_by(Message.timestamp.desc()).offset(after_id).limit(limit)
     )
     return result.scalars().all()
