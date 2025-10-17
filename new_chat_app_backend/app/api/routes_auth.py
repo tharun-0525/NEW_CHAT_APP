@@ -41,9 +41,12 @@ async def register_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
     existing_user = await getUserByUsername(db, data.username)
     if existing_user:
         return {"error": "Username already exists"}
-    user = await createUser(db, data.name, data.email, data.username, data.password)
-    return {"id": user.id, "username": user.username, "email": user.email}
-
+    try:
+        user = await createUser(db, data.name, data.email, data.username, data.password)
+        return {"id": user.id, "username": user.username, "email": user.email}
+    except Exception:
+        if(status.HTTP_422_UNPROCESSABLE_ENTITY):
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid data provided")
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
