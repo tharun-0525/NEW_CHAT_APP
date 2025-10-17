@@ -2,10 +2,10 @@ from typing import TYPE_CHECKING, Optional
 from pydantic import BaseModel, EmailStr, Field, constr
 
 class UserCreate(BaseModel):
-    name: str
-    username : str
-    password: str
+    name: constr(min_length=1, max_length=50) 
+    username : constr(min_length=1, max_length=30)
     email: EmailStr
+    password: constr(min_length=6)
     bio: Optional[str] = None
     profile_image: Optional[str] = None
 
