@@ -1,8 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import routes_user, routes_auth, routes_message, routes_ws
-from app.db.base import Base
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.db.session import init_models
+from app.schema.response import ResponseModel
 
 
 app = FastAPI(title="Chat App")
@@ -31,4 +34,13 @@ async def on_startup():
 async def root():
     return {"message": "Chat App API is running!"}
 
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=ResponseModel(
+            status="failed",
+            message=exc.detail
+        ).model_dump(),
+    )
 
