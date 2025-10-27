@@ -44,3 +44,17 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         ).model_dump(),
     )
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    print("Validation error:", exc)
+    err=exc.errors()
+    print("First error detail:", err)
+    return JSONResponse(
+        status_code=422,
+        content=ResponseModel(
+            status="failed",
+            message="Validation error",
+            data=err
+        ).model_dump(),
+    )
+

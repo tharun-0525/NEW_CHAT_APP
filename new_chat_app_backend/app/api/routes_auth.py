@@ -8,6 +8,7 @@ from app.schema.user import UserCreate, UserLogin
 from app.schema.response import ResponseModel
 
 
+
 router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -26,7 +27,7 @@ async def login(
                 headers={"WWW-Authenticate": "Bearer"},
             )
         data= {"access_token": token, "token_type": "bearer"}
-        return data
+        return ResponseModel(status="success",data=[data])
 
     except HTTPException: 
         raise
@@ -44,12 +45,14 @@ async def register_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
     if existing_user:
         return {"error": "Username already exists"}
     user = await createUser(db, data.name, data.email, data.username, data.password)
-    return {"id": user.id, "username": user.username, "email": user.email}
+    return ResponseModel(status="success", data=[{"id": user.id, "username": user.username, "email": user.email, "name": user.name}])
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = verify_token(token)
-        return {"user_id": payload.get("user_id")}
+        data= payload.get("user_id")
+        return data
+        #return data
                 
     except Exception:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(status_code=401, detail="token")
