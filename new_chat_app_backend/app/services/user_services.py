@@ -14,11 +14,15 @@ async def getUserByUsername(db: AsyncSession, username: str):
     result = await db.execute(select(User).where(User.username == username))
     return result.scalar_one_or_none()
 
+async def getUserById(db: AsyncSession, user_id: str):
+    result = await db.execute(select(User).where(User.id == user_id))
+    return result.scalar_one_or_none()
+
 async def getUsers(db: AsyncSession,limit: int,after_id: int):
-    result = await db.execute(select(User.username, User.id, User.email).limit(limit))
+    result = await db.execute(select(User).limit(limit))
     if after_id:
-        result = await db.execute(select(User.username, User.id, User.email).where(User.id > after_id).limit(limit))
-    return result.fetchall()
+        result = await db.execute(select(User).where(User.id > after_id).limit(limit))
+    return result.scalars().all()
 
 async def login_user(username: str, password: str, db: AsyncSession):
     user = await getUserByUsername(db, username)

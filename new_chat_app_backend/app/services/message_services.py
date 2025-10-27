@@ -19,4 +19,6 @@ async def fetch_messages(user_id: int, with_user: int, limit: int,after_id: int,
             )
         ).order_by(Message.timestamp.desc()).offset(after_id).limit(limit)
     )
-    return result.scalars().all()
+    data= result.scalars().all()
+
+    return data

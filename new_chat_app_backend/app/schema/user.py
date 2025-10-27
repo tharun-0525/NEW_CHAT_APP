@@ -11,7 +11,7 @@ class UserCreate(BaseModel):
 
 class UserFetch(BaseModel):
     id: int
-    name: str
+    name: Optional[str] = None
     username : str
     email: EmailStr
     bio: Optional[str] = None
