@@ -27,7 +27,7 @@ async def login(
                 headers={"WWW-Authenticate": "Bearer"},
             )
         data= {"access_token": token, "token_type": "bearer"}
-        return ResponseModel(status="success",data=[data])
+        return data
 
     except HTTPException: 
         raise
