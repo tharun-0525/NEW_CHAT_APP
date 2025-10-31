@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime
 from datetime import datetime
 from .base import Base
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -15,6 +16,7 @@ class User(Base):
     bio = Column(Text, nullable=True)
     profile_image = Column(String(255), nullable=True)
 
+
 class Message(Base):
     __tablename__ = "messages"
 
@@ -24,12 +26,12 @@ class Message(Base):
     receiver_id = Column(Integer, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
+
 class FriendRequest(Base):
     __tablename__ = "friend_requests"
 
     id = Column(Integer, primary_key=True, index=True)
     requester_id = Column(Integer, nullable=False)
     addressee_id = Column(Integer, nullable=False)
-    status = Column(String(20), default="pending") # e.g., pending, accepted, rejected
+    status = Column(String(20), default="pending")  # e.g., pending, accepted, rejected
     created_at = Column(DateTime, default=datetime.utcnow)
-

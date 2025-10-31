@@ -2,6 +2,7 @@ from fastapi import WebSocket
 from typing import Dict, List
 import json
 
+
 class ConnectionManager:
     def __init__(self):
         self.active_connections: Dict[int, set[WebSocket]] = {}
@@ -34,6 +35,7 @@ class ConnectionManager:
         return user_id in self.active_connections
 
     def connected_list(self) -> List[int]:
-        return (self.active_connections)
+        return self.active_connections
+
 
 manager = ConnectionManager()
