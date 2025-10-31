@@ -29,10 +29,10 @@ async def getUserById(db: AsyncSession, user_id: str):
     return result.scalar_one_or_none()
 
 
-async def getUsers(db: AsyncSession, limit: int, after_id: int):
+async def getUsers(db: AsyncSession, limit: int, offset: int):
     result = await db.execute(select(User).limit(limit))
-    if after_id:
-        result = await db.execute(select(User).where(User.id > after_id).limit(limit))
+    if offset:
+        result = await db.execute(select(User).where(User.id > offset).limit(limit))
     return result.scalars().all()
 
 

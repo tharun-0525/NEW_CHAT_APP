@@ -1,6 +1,7 @@
 from fastapi import WebSocket
 from typing import Dict, List
 import json
+import asyncio
 
 
 class ConnectionManager:
@@ -36,6 +37,22 @@ class ConnectionManager:
 
     def connected_list(self) -> List[int]:
         return self.active_connections
+
+    async def _heartbeat(self):
+        while True:
+            print(self.active_connections)
+            for user_id, websockets in self.active_connections.items():
+                dead_sockets = set()
+                for ws in websockets:
+                    try:
+                        print("Sending heartbeat to user:", user_id)
+                        await ws.send_json({"status": "success", "message": "ping"})
+                    except Exception:
+                        dead_sockets.add(ws)
+
+                for ws in dead_sockets:
+                    self.disconnect(user_id, ws)
+            await asyncio.sleep(30)
 
 
 manager = ConnectionManager()
