@@ -30,43 +30,34 @@ async def websocket_endpoint(
 
                 message_data = json.loads(data)
                 sender_id = message_data["sender_id"]
-                receiver_id = message_data["receiver_id"]
+                group_id = message_data["group_id"]
                 content = message_data["content"]
 
-                if not all([sender_id, receiver_id, content]):
+                if not all([sender_id, group_id, content]):
                     await websocket.send_json(
-                        {"status":"failed","message": "Missing sender_id, receiver_id, or content"}
+                        {"status":"failed","message": "Missing sender_id, group_id, or content"}
                     )
                     continue
 
                 msg = await send_message(
                     content=content,
                     sender_id=int(sender_id),
-                    receiver_id=int(receiver_id),
+                    group_id=int(group_id),
                     db=db,
                 )
 
                 payload = MessageOut(
                     content=msg.content,
                     id=msg.id,
-                    receiver_id=msg.receiver_id,
+                    group_id=msg.group_id,
                     sender_id=msg.sender_id,
                     timestamp=msg.timestamp.isoformat() if msg.timestamp else None,
                 ).model_dump()
 
-                #print(manager.connected_list())
-
-                if manager.is_connected(msg.sender_id):
-                    #print("sent to user itself")
-                    await manager.send_personal_message(payload, msg.sender_id)
-
-                if manager.is_connected(msg.receiver_id):
-                    #print("sent to intended")
-                    await manager.send_personal_message(payload, msg.receiver_id)
+                await manager.send_message(payload, sender_id, group_id)
 
         except WebSocketDisconnect:
             manager.disconnect(user_id, websocket)
-
 
 @router.get("/", response_model=ResponseModel)
 async def test_endpoint():

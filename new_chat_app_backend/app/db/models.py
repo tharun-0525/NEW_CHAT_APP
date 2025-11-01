@@ -44,7 +44,8 @@ class Group(Base):
     name = Column(String(100), nullable=False)
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-    model = Column()
+    created_by = Column(Integer, nullable=False)
+    model = Column(Enum(GroupModelEnum), default=GroupModelEnum.PRIVATE)
 
 class FriendRequest(Base):
     __tablename__ = "friend_requests"
