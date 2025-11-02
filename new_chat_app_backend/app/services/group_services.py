@@ -1,17 +1,17 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
-from app.db.models import Message, Group_Mem, Group, GroupModelEnum
+from app.db.models import Group_Mem, Group, GroupModelEnum
 from sqlalchemy.future import select
 from sqlalchemy import or_, and_
-
+from app.schema.groups import GroupCreate, GroupUpdate
 async def getGroups(
     user_id: int, limit: int, offset: int, db: AsyncSession
 ):
     result = await db.execute(
-        select(Group.id, Group.name, Group.description, Group.profile_image)
+        select(Group)
         .where(
             Group.id.in_(
-                select(Group_Mem.group_id).where(Group_Mem.user_id == user_id)
+                select(Group_Mem.g_id).where(Group_Mem.user_id == user_id)
             )
         )
         .distinct()
@@ -22,12 +22,14 @@ async def getGroups(
     return data
 
 async def createGroup(
-    name: str, description: str, profile_image: str, members: list[int], db: AsyncSession
+    group: GroupCreate, db: AsyncSession
 ):
+    name = group.name
+    description = group.description 
+    members = group.members
     model = GroupModelEnum.PRIVATE if len(members)==2 else GroupModelEnum.ROOM
     new_group = Group(name=name, 
-                    description=description, 
-                    profile_image=profile_image, 
+                    description=description,  
                     created_by=members[0], 
                     model = model
                     )
@@ -36,23 +38,22 @@ async def createGroup(
     await db.refresh(new_group)
 
     for member_id in members:
-        group_mem = Group_Mem(group_id=new_group.id, user_id=member_id)
+        group_mem = Group_Mem(g_id=new_group.id, user_id=member_id)
         db.add(group_mem)
 
     await db.commit()
     return new_group
 
 async def updateGroup(
-    group_id: int, name: str, description: str, profile_image: str, db: AsyncSession
+    g_id: int, group: GroupUpdate,db: AsyncSession
 ):
-    result = await db.execute(select(Group).where(Group.id == group_id))
+    result = await db.execute(select(Group).where(Group.id == g_id))
     group = result.scalar_one_or_none()
     if not group:
         return None
 
-    group.name = name
-    group.description = description
-    group.profile_image = profile_image
+    group.name = group.name
+    group.description = group.description
 
     db.add(group)
     await db.commit()
@@ -60,13 +61,13 @@ async def updateGroup(
     return group
 
 async def isMember(
-    user_id: int, group_id: int, db: AsyncSession
+    user_id: int, g_id: int, db: AsyncSession
 ):
     result = await db.execute(
         select(Group_Mem).where(
             and_(
                 Group_Mem.user_id == user_id,
-                Group_Mem.group_id == group_id
+                Group_Mem.g_id == g_id
             )
         )
     )

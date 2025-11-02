@@ -72,7 +72,5 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         payload = verify_token(token)
         data = payload.get("user_id")
         return data
-        # return data
-
     except Exception:
         raise HTTPException(status_code=401, detail="token")

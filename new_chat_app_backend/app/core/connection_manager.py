@@ -46,12 +46,10 @@ class ConnectionManager:
 
     async def _heartbeat(self):
         while True:
-            print(self.active_connections)
             for user_id, websockets in self.active_connections.items():
                 dead_sockets = set()
                 for ws in websockets:
                     try:
-                        print("Sending heartbeat to user:", user_id)
                         await ws.send_json({"status": "success", "message": "ping"})
                     except Exception:
                         dead_sockets.add(ws)

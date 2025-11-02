@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import routes_user, routes_auth, routes_message, routes_ws
+from app.api import routes_user, routes_auth, routes_message, routes_ws, routes_rooms
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.db.session import init_models
@@ -24,12 +24,11 @@ app.include_router(routes_user.router, prefix="/users", tags=["users"])
 app.include_router(routes_auth.router, prefix="/auth", tags=["auth"])
 app.include_router(routes_message.router, prefix="/messages", tags=["messages"])
 app.include_router(routes_ws.router, prefix="/ws", tags=["ws"])
-
+app.include_router(routes_rooms.router, prefix="/rooms", tags=["rooms"])
 
 @app.on_event("startup")
 async def on_startup():
     await init_models()
-
 
 # Root endpoint
 @app.get("/")

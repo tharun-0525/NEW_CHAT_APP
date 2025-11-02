@@ -11,12 +11,13 @@ router = APIRouter(dependencies=[Depends(get_current_user)])
 
 @router.get("/", response_model=ResponseModel)
 async def get_user(
-    limit: int = 2, offset: int = 0, db: AsyncSession = Depends(get_db)
+    limit: int = 2, 
+    offset: int = 0, 
+    db: AsyncSession = Depends(get_db)
 ):
     user = await getUsers(db, limit, offset)
     if not user:
         return {"status": "failed", "message": "Users not found"}
-    print("Fetched Users:", user)
     data = [
         UserFetch(
             id=u.id,

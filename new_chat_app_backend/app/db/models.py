@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Enum
+from sqlalchemy import Column, Integer, String, Text, DateTime, Enum, ForeignKey
 from datetime import datetime
 from .base import Base
 import enum
@@ -26,32 +26,24 @@ class Message(Base):
     __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True, index=True)
-    group_id = Column(Integer, nullable=True)
-    sender_id = Column(Integer, nullable=False)
+    g_id = Column(Integer, ForeignKey('groups.id', ondelete= "CASCADE", name='fk_group_id'), nullable=False)
+    sender_id = Column(Integer, ForeignKey('users.id', ondelete= "CASCADE", name='fk_sender_id'), nullable=False)
     content = Column(Text, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
-
-class Group_Mem(Base):
-    __tablename__ = "group_members"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, nullable=False)
 
 class Group(Base):
     __tablename__ = "groups"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), nullable=False)
+    name = Column(String(100), nullable=True)
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     created_by = Column(Integer, nullable=False)
     model = Column(Enum(GroupModelEnum), default=GroupModelEnum.PRIVATE)
 
-class FriendRequest(Base):
-    __tablename__ = "friend_requests"
+class Group_Mem(Base):
+    __tablename__ = "group_members"
 
-    id = Column(Integer, primary_key=True, index=True)
-    requester_id = Column(Integer, nullable=False)
-    addressee_id = Column(Integer, nullable=False)
-    status = Column(String(20), default="pending")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    g_id = Column(Integer, ForeignKey('groups.id', ondelete= "CASCADE", name='fk_group_id'), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete= "CASCADE", name='fk_user_id'), primary_key=True)
+

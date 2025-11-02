@@ -1,22 +1,19 @@
-from typing import List, Optional
-from pydantic import BaseModel, constr
+from typing import List, Annotated, Optional
+from pydantic import BaseModel, Field
 
 class GroupCreate(BaseModel):
-    name: constr(min_length=1, max_length=100)
+    name: Optional[Annotated[str, Field(min_length=1, max_length=100)]] = None 
     description: Optional[str] = None
-    profile_image: Optional[str] = None
-    members: List[int]
+    members: List[int] = Field(min_items=2)
 
 class GroupFetch(BaseModel):
     id: int
-    name: str
+    name: Optional[str] = None
     description: Optional[str] = None
-    profile_image: Optional[str] = None
 
     class Config:
         orm_mode = True
 
 class GroupUpdate(BaseModel):
-    name: Optional[constr(min_length=1, max_length=100)] = None
+    name: Annotated[str, Field(min_length=1, max_length=100)] = None
     description: Optional[str] = None
-    profile_image: Optional[str] = None
