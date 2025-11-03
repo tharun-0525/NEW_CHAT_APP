@@ -11,8 +11,7 @@ class MessageFetch(BaseModel):
     id: int
     content: str
     sender_id: int
-    receiver_id: int
-
+    g_id: int
     model_config = {"from_attributes": True}
 
 

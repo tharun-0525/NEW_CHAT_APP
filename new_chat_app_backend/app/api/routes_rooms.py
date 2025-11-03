@@ -16,7 +16,7 @@ async def groups(
     offset: int = 0, db: AsyncSession = Depends(get_db)
 ):
 
-    rooms = await getGroups(user_id,limit, offset, db)
+    rooms = await getGroups(user_id=user_id, db=db,limit=limit, offset=offset)
     print("groups",rooms)
     if not rooms:
         return {"status": "success"}
@@ -64,4 +64,4 @@ async def update_room(
     )
     if not updated_group:
         return {"status": "failed", "message": "Group not found"}
-    return {"status": "success", "data": {"id": updated_group.id}}
+    return {"status": "success", "data": [updated_group.id]}

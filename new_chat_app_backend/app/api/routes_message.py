@@ -20,7 +20,7 @@ async def get_messages(
     user: int = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if isMember(user.id, group_id) == False:
+    if isMember(user, group_id, db) == False:
         raise HTTPException(status_code=403, detail="You are not a member of this group")
     
     messages = await fetch_messages(group_id, limit, after_id, db)
@@ -29,6 +29,7 @@ async def get_messages(
             id=message.id,
             sender_id=message.sender_id,
             content=message.content,
+            g_id=message.g_id,
             timestamp=message.timestamp,
         )
         for message in messages

@@ -19,9 +19,10 @@ async def websocket_endpoint(
     websocket: WebSocket, token: str
 ):
     async for db in get_db():
+        print(token)
         user = verify_token(token)
         user_id = user["user_id"]
-        await manager.connect(user_id, websocket)
+        await manager.connect(user_id, websocket, db)
 
         try:
             while True:
@@ -42,14 +43,14 @@ async def websocket_endpoint(
                 msg = await send_message(
                     content=content,
                     sender_id=int(sender_id),
-                    group_id=int(group_id),
+                    g_id=int(group_id),
                     db=db,
                 )
 
                 payload = MessageOut(
                     content=msg.content,
                     id=msg.id,
-                    group_id=msg.group_id,
+                    g_id=msg.g_id,
                     sender_id=msg.sender_id,
                     timestamp=msg.timestamp.isoformat() if msg.timestamp else None,
                 ).model_dump()

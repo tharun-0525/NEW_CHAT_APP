@@ -35,7 +35,6 @@ async def getUsers(db: AsyncSession, limit: int, offset: int):
         result = await db.execute(select(User).where(User.id > offset).limit(limit))
     return result.scalars().all()
 
-
 async def login_user(username: str, password: str, db: AsyncSession):
     user = await getUserByUsername(db, username)
     if not user or not verify_password(password, user.hashed_password):

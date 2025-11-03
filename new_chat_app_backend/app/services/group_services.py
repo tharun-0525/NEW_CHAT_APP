@@ -4,10 +4,12 @@ from app.db.models import Group_Mem, Group, GroupModelEnum
 from sqlalchemy.future import select
 from sqlalchemy import or_, and_
 from app.schema.groups import GroupCreate, GroupUpdate
+
 async def getGroups(
-    user_id: int, limit: int, offset: int, db: AsyncSession
+    user_id: int,  db: AsyncSession, limit: int= None, offset: int = None,
 ):
-    result = await db.execute(
+
+    result =(
         select(Group)
         .where(
             Group.id.in_(
@@ -15,9 +17,10 @@ async def getGroups(
             )
         )
         .distinct()
-        .offset(offset)
-        .limit(limit)
     )
+    if limit is not None and offset is not None:
+        result = result.offset(offset).limit(limit)
+    result = await db.execute(result)      
     data = result.scalars().all()
     return data
 

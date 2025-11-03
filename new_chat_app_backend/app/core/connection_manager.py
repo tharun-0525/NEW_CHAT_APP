@@ -2,22 +2,25 @@ from fastapi import WebSocket
 from typing import Dict, List
 import json
 import asyncio
-
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.services.group_services import getGroups
+from app.db.session import get_db
+from fastapi import Depends
 
 class ConnectionManager:
     def __init__(self):
         self.room_connections: Dict[int, set[int]] = {}
         self.active_connections: Dict[int, set[WebSocket]] = {}
-
-    async def connect(self, user_id: int, group_id: int,websocket: WebSocket):
+    
+    async def connect(self, user_id: int, websocket: WebSocket, db: AsyncSession):
         await websocket.accept()
-        if user_id not in self.active_connections:
-            self.active_connections[user_id] = set()
-            self.room_connections
-        if group_id not in self.room_connections:
-            self.room_connections[group_id] = set()
-        self.room_connections[group_id].add(user_id)
-        self.active_connections[user_id].add(websocket)
+        
+        self.active_connections.setdefault(user_id, set()).add(websocket)
+        
+        groups = await getGroups(user_id, db)
+        for group in groups:
+            group_id = group.id
+            self.room_connections.setdefault(group_id, set()).add(user_id)
 
     def disconnect(self, user_id: int, websocket: WebSocket):
         if user_id in self.active_connections:
