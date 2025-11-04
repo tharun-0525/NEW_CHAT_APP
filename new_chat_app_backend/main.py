@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import routes_user, routes_auth, routes_message, routes_ws, routes_rooms
+from app.api import routes_user, routes_auth, routes_message, routes_ws, routes_rooms, routes_search
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.db.session import init_models
@@ -25,6 +25,7 @@ app.include_router(routes_auth.router, prefix="/auth", tags=["auth"])
 app.include_router(routes_message.router, prefix="/messages", tags=["messages"])
 app.include_router(routes_ws.router, prefix="/ws", tags=["ws"])
 app.include_router(routes_rooms.router, prefix="/rooms", tags=["rooms"])
+app.include_router(routes_search.router, prefix="/search", tags=["search"])
 
 @app.on_event("startup")
 async def on_startup():

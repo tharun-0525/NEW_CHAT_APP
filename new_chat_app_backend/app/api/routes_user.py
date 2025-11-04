@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
-from app.services.user_services import getUsers, getUserById
+from app.services.user_services import getUsers, getUserById, usersOfGroup
 from app.api.routes_auth import get_current_user
 from app.schema.response import ResponseModel
 from app.schema.user import UserFetch
@@ -48,3 +48,18 @@ async def read_current_user(
         profile_image=user.profile_image,
     )
     return {"status": "success", "data": data}
+
+@router.get("/{g_id}", response_model=ResponseModel)
+async def groupUsers(g_id: int, db: AsyncSession = Depends(get_db)):
+    users = await usersOfGroup(group_id=g_id, db=db)
+    data = [
+        UserFetch(
+            id=u.id,
+            username=u.username,
+            email=u.email,
+            name=u.name,
+            bio=u.bio,
+            profile_image=u.profile_image)
+        for u in users
+    ]
+    return {"status":"success", "data":data}

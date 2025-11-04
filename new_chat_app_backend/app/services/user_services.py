@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db.models import User
+from app.db.models import User, Group_Mem, Group
 from sqlalchemy.future import select
 from app.core.security import verify_password, hash_password, create_access_token
 
@@ -42,3 +42,26 @@ async def login_user(username: str, password: str, db: AsyncSession):
 
     token = create_access_token({"user_id": user.id})
     return token
+
+async def usersOfGroup(group_id: int, db: AsyncSession):
+    users = await db.execute(
+        select(User).where(
+            User.id.in_(
+                select(Group_Mem.user_id).where(
+                    Group_Mem.g_id==group_id
+                )
+            )
+        )
+    )
+    return users.scalars().all()
+
+async def searchByUsername(
+        username: str,
+        db: AsyncSession,
+        limit: int,
+        offset: int,
+):
+    result = await db.execute(select(User).where(
+                                User.username.like(f'{username}%')).limit(limit).offset(offset)
+                            )
+    return result.scalars().all()

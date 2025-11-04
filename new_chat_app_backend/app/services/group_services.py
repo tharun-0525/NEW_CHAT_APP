@@ -76,3 +76,16 @@ async def isMember(
     )
     membership = result.scalar_one_or_none()
     return membership is not None
+
+async def searchByGroupname(
+        groupname: str,
+        db: AsyncSession,
+        limit: int,
+        offset: int
+):
+    result = await db.execute(
+        select(Group).where(
+            Group.name.like(f'{groupname}%')
+        ).limit(limit).offset(offset)
+    )
+    return result.scalars().all()
